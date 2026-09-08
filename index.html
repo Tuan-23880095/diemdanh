@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điểm Danh - Thực Tập Sư Phạm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        /* Custom spinner for loading states */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal animations */
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.3s ease-out;
+        }
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transition-all duration-300">
+        
+        <!-- Header Info -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white text-center">
+            <h1 class="text-2xl font-bold mb-2">ĐIỂM DANH SINH VIÊN</h1>
+            <div class="text-sm text-blue-100 space-y-1">
+                <p><strong>Môn học:</strong> Thực tập sư phạm</p>
+                <p><strong>Mã học phần:</strong> MTH10112</p>
+                <p><strong>Số tiết:</strong> 120 tiết</p>
+            </div>
+        </div>
+
+        <div class="p-6 space-y-6">
+            
+            <!-- GPS Status -->
+            <div id="gps-status-container" class="flex items-center justify-between p-3 bg-yellow-50 text-yellow-700 rounded-lg text-sm border border-yellow-200">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span id="gps-text">Đang lấy tọa độ GPS...</span>
+                </div>
+                <div id="gps-loader" class="loader border-yellow-200 border-top-yellow-600"></div>
+            </div>
+
+            <!-- MSSV Input -->
+            <div>
+                <label for="mssv" class="block text-sm font-medium text-gray-700 mb-1">Mã số sinh viên (MSSV)</label>
+                <div class="flex gap-2">
+                    <input type="text" id="mssv" placeholder="Nhập MSSV của bạn..." 
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-lg uppercase font-semibold text-gray-800 placeholder-gray-400">
+                    <button onclick="checkStudent()" 
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors border border-gray-300 whitespace-nowrap">
+                        Kiểm tra
+                    </button>
+                </div>
+            </div>
+
+            <!-- Student Info Display (Hidden by default) -->
+            <div id="student-info" class="hidden bg-blue-50 border border-blue-100 p-4 rounded-lg">
+                <p class="text-sm text-blue-600 mb-1">Thông tin sinh viên:</p>
+                <p id="student-name" class="text-xl font-bold text-blue-900">Nguyễn Văn A</p>
+                <p id="current-time-display" class="text-xs text-gray-500 mt-2"></p>
+            </div>
+
+            <!-- Submit Button -->
+            <button id="submit-btn" onclick="submitAttendance()" disabled
+                class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2">
+                <span>XÁC NHẬN ĐIỂM DANH</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Custom Message Box (Modal) -->
+    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-sm p-6 transform scale-95 transition-transform duration-300" id="modal-content">
+            <div id="modal-icon" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4">
+                <!-- Icon injected by JS -->
+            </div>
+            <h3 id="modal-title" class="text-lg leading-6 font-bold text-gray-900 text-center mb-2">Tiêu đề</h3>
+            <div class="mt-2 text-center">
+                <p id="modal-message" class="text-sm text-gray-500">Nội dung thông báo...</p>
+            </div>
+            <div class="mt-6 flex justify-center">
+                <button onclick="closeModal()" type="button" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm transition-colors">
+                    Đã hiểu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cấu hình Google Apps Script URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbziaPmoiI3cXEy9czuo6iuqJGR2piu4mqEuwJJ6cDPwDTmkjulNmnPpQamR3a8LoC5i/exec";
+
+        // Cơ sở dữ liệu mẫu sinh viên (Để ánh xạ MSSV -> Tên). 
+        // Trong thực tế bạn có thể thêm đầy đủ danh sách lớp vào đây.
+        const studentDatabase = {
+            "19110432": "Lê Tâm",
+            "20110050": "Nguyễn Minh Hưng",
+            "21110054": "Đinh Viết Đạt",
+            "21110079": "Đặng Thị Thu Hiền",
+            "21110101": "Trần Minh Huy",
+            "21110251": "Đỗ Huỳnh Ngọc Châu",
+            "22110016": "Nguyễn Thị Hồng Anh",
+            "22110027": "Trần Đỗ Bình Bình",
+            "22110044": "Đỗ Thị Thùy Dương",
+            "22110045": "Khúc Nguyên Dương",
+            "22110055": "Bùi Minh Hằng",
+            "22110058": "Lý Trung Hậu",
+            "22110064": "Nguyễn Quang Hoà",
+            "22110087": "Nhan Đình Khoa",
+            "22110108": "Nguyễn Thành Long",
+            "22110123": "Lê Nguyễn Đức Nam",
+            "22110124": "Lê Thị Kim Nga",
+            "22110165": "Trần Đình Phước",
+            "23110013": "Lê Nguyễn Phong Duy",
+            "23110016": "Huỳnh Đông Hưng",
+            "23110022": "Nguyễn Châu Hoàng Duy Khang",
+            "23110027": "Phạm Công Linh",
+            "23110050": "Ngô Thị Cẩm Tiên",
+            "23110051": "Đặng Bảo Toàn",
+            "23110069": "Trịnh Nam Bình",
+            "23110079": "Bùi Quang Nam Hải",
+            "23110081": "Phan Ngọc Minh Hằng",
+            "23110085": "Trần Anh Huy",
+            "23110089": "Huỳnh Thị Kim Khánh",
+            "23110107": "Lê Thành Nhân",
+            "23110115": "Trần Phước Thịnh",
+            "23110116": "La Minh Thư",
+            "23110124": "Trần Nguyễn Thảo Vy",
+            "23110125": "Dương Thị Hải Yến",
+            "23110142": "Lê Minh Đức",
+            "23110158": "Trịnh Tuấn Hưng",
+            "23110160": "Nguyễn Ngọc Hương",
+            "23110162": "Nguyễn Minh Huy",
+            "23110166": "VÕ HOÀNG PHÚC KHẢI",
+            "23110169": "Đỗ Bình Nguyên Khánh",
+            "23110171": "Nguyễn Thanh Khiết",
+            "23110184": "Nguyễn Lâm Thảo Ly",
+            "23110204": "Nguyễn Thị Diễm Quỳnh",
+            "23110213": "Mai Phạm Uyên Trâm",
+            "23110214": "Ngô Minh Trí",
+            "23110221": "Trần Huy Tuấn",
+            "23110047": "Nguyễn Lữ Duy Thịnh"
+          };
+
+        let currentLocation = null;
+        let verifiedName = "";
+
+        // Tự động lấy GPS khi tải trang
+        window.onload = function() {
+            requestGPS();
+        };
+
+        function requestGPS() {
+            const gpsText = document.getElementById('gps-text');
+            const gpsContainer = document.getElementById('gps-status-container');
+            const gpsLoader = document.getElementById('gps-loader');
+
+            if (!navigator.geolocation) {
+                updateGPSStatus("Trình duyệt không hỗ trợ GPS", "error");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    currentLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    updateGPSStatus("Đã lấy được tọa độ GPS", "success");
+                    checkEnableSubmit();
+                },
+                (error) => {
+                    console.error("Chi tiết lỗi GPS:", error.message || error.code || "Không xác định");
+                    
+                    // Hiển thị trực tiếp mã lỗi lên màn hình để dễ khắc phục
+                    let errorMessage = "Không thể lấy GPS. Hãy cấp quyền vị trí!";
+                    if (error.message) {
+                        errorMessage = "Lỗi GPS: " + error.message;
+                    }
+                    updateGPSStatus(errorMessage, "error");
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+
+        function updateGPSStatus(message, status) {
+            const container = document.getElementById('gps-status-container');
+            const text = document.getElementById('gps-text');
+            const loader = document.getElementById('gps-loader');
+            
+            text.innerText = message;
+            
+            if (status === 'success') {
+                container.className = "flex items-center justify-between p-3 bg-green-50 text-green-700 rounded-lg text-sm border border-green-200";
+                loader.style.display = 'none';
+            } else if (status === 'error') {
+                container.className = "flex items-center justify-between p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200";
+                loader.style.display = 'none';
+            }
+        }
+
+        function checkStudent() {
+            const mssvInput = document.getElementById('mssv').value.trim().toUpperCase();
+            const infoDiv = document.getElementById('student-info');
+            const nameEl = document.getElementById('student-name');
+            const timeEl = document.getElementById('current-time-display');
+            
+            if (!mssvInput) {
+                showModal("Lỗi nhập liệu", "Vui lòng nhập Mã số sinh viên.", "error");
+                return;
+            }
+
+            if (studentDatabase[mssvInput]) {
+                verifiedName = studentDatabase[mssvInput];
+                nameEl.innerText = verifiedName;
+                
+                const now = new Date();
+                timeEl.innerText = "Thời gian: " + now.toLocaleTimeString('vi-VN') + " - " + now.toLocaleDateString('vi-VN');
+                
+                infoDiv.classList.remove('hidden');
+                checkEnableSubmit();
+            } else {
+                verifiedName = "";
+                infoDiv.classList.add('hidden');
+                checkEnableSubmit();
+                showModal("Không tìm thấy", "Không tìm thấy sinh viên có MSSV: " + mssvInput + ". Vui lòng kiểm tra lại.", "warning");
+            }
+        }
+
+        function checkEnableSubmit() {
+            const btn = document.getElementById('submit-btn');
+            // Cần có cả Tên (đã check) và GPS để mở nút bấm
+            if (verifiedName !== "" && currentLocation !== null) {
+                btn.disabled = false;
+            } else {
+                btn.disabled = true;
+            }
+        }
+
+        function submitAttendance() {
+            const mssv = document.getElementById('mssv').value.trim().toUpperCase();
+            const btn = document.getElementById('submit-btn');
+            
+            if(!mssv || !verifiedName || !currentLocation) return;
+
+            // Đổi trạng thái nút
+            const originalBtnText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<div class="loader border-blue-200 border-top-white"></div> <span>Đang gửi...</span>`;
+
+            // Gom dữ liệu
+            const formData = new FormData();
+            formData.append('mssv', mssv);
+            formData.append('name', verifiedName);
+            formData.append('lat', currentLocation.lat);
+            formData.append('lng', currentLocation.lng);
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('vi-VN') + " " + now.toLocaleDateString('vi-VN');
+            formData.append('time', timeString);
+
+            // Gửi qua Fetch API (Sử dụng no-cors để tránh lỗi với App Script)
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors' 
+            })
+            .then(() => {
+                // Do mode 'no-cors', chúng ta luôn coi là thành công nếu fetch không ném ra lỗi mạng
+                showModal("Thành công!", `Sinh viên ${verifiedName} đã điểm danh thành công lúc ${timeString}.`, "success");
+                
+                // Reset form
+                document.getElementById('mssv').value = '';
+                document.getElementById('student-info').classList.add('hidden');
+                verifiedName = "";
+                checkEnableSubmit();
+            })
+            .catch(error => {
+                console.error('Error!', error.message);
+                showModal("Lỗi mạng", "Không thể gửi dữ liệu điểm danh. Vui lòng kiểm tra mạng và thử lại.", "error");
+            })
+            .finally(() => {
+                btn.innerHTML = originalBtnText;
+            });
+        }
+
+        function showModal(title, message, type) {
+            const modal = document.getElementById('custom-modal');
+            const content = document.getElementById('modal-content');
+            const titleEl = document.getElementById('modal-title');
+            const msgEl = document.getElementById('modal-message');
+            const iconEl = document.getElementById('modal-icon');
+
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+
+            // Đặt icon dựa trên type
+            if (type === 'success') {
+                iconEl.className = "mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4";
+                iconEl.innerHTML = `<svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+            } else if (type === 'error') {
+                iconEl.className = "mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4";
+                iconEl.innerHTML = `<svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+            } else {
+                iconEl.className = "mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4";
+                iconEl.innerHTML = `<svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+            }
+
+            modal.classList.remove('hidden');
+            // Timeout để hiệu ứng CSS chạy mượt
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('custom-modal');
+            const content = document.getElementById('modal-content');
+            
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+    </script>
+</body>
+</html>
