@@ -14,13 +14,12 @@
             background-size: 20px 20px;
         }
         
-        /* Tùy chỉnh thanh cuộn để bảng hiển thị đẹp hơn */
+        /* Tùy chỉnh thanh cuộn */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Custom spinner for loading states */
         .loader {
             border: 3px solid #f3f3f3;
             border-top: 3px solid #3b82f6;
@@ -36,22 +35,11 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        /* Modal animations */
-        .modal-enter {
-            opacity: 0;
-            transform: scale(0.95);
-            transition: all 0.3s ease-out;
-        }
-        .modal-enter-active {
-            opacity: 1;
-            transform: scale(1);
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col text-gray-800 antialiased">
 
-    <!-- Header with Logo -->
+    <!-- Header -->
     <header class="bg-white shadow-sm border-b sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -65,11 +53,9 @@
 
     <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <!-- Cột Trái: Form Điểm Danh (Giữ nguyên bản cũ) -->
+        <!-- Cột Trái: Form Điểm Danh -->
         <div class="lg:col-span-4 flex flex-col">
             <div class="bg-white rounded-2xl shadow-xl w-full overflow-hidden transition-all duration-300 sticky top-24">
-                
-                <!-- Header Info -->
                 <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white text-center">
                     <h2 class="text-2xl font-bold mb-2">ĐIỂM DANH SINH VIÊN</h2>
                     <div class="text-sm text-blue-100 space-y-1">
@@ -80,7 +66,6 @@
                 </div>
 
                 <div class="p-6 space-y-6">
-                    
                     <!-- GPS Status -->
                     <div id="gps-status-container" class="flex items-center justify-between p-3 bg-yellow-50 text-yellow-700 rounded-lg text-sm border border-yellow-200">
                         <div class="flex items-center gap-2">
@@ -94,7 +79,7 @@
                     <div>
                         <label for="mssv" class="block text-sm font-medium text-gray-700 mb-1">Mã số sinh viên (MSSV)</label>
                         <div class="flex gap-2">
-                            <input type="text" id="mssv" placeholder="Nhập MSSV của bạn..." 
+                            <input type="text" id="mssv" placeholder="Nhập MSSV..." 
                                 class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-lg uppercase font-semibold text-gray-800 placeholder-gray-400">
                             <button onclick="checkStudent()" 
                                 class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors border border-gray-300 whitespace-nowrap">
@@ -106,7 +91,7 @@
                     <!-- Student Info Display -->
                     <div id="student-info" class="hidden bg-blue-50 border border-blue-100 p-4 rounded-lg">
                         <p class="text-sm text-blue-600 mb-1">Thông tin sinh viên:</p>
-                        <p id="student-name" class="text-xl font-bold text-blue-900">Nguyễn Văn A</p>
+                        <p id="student-name" class="text-xl font-bold text-blue-900"></p>
                         <p id="current-time-display" class="text-xs text-gray-500 mt-2"></p>
                     </div>
 
@@ -119,14 +104,12 @@
             </div>
         </div>
 
-        <!-- Cột Phải: Thống Kê & Báo Cáo (Tính năng mới) -->
+        <!-- Cột Phải: Thống Kê & Báo Cáo -->
         <div class="lg:col-span-8 flex flex-col space-y-6 relative min-h-[500px]">
             
-            <!-- Loading overlay cho khu vực thống kê -->
             <div id="statsLoadingOverlay" class="absolute inset-0 bg-white bg-opacity-90 z-20 flex flex-col items-center justify-center rounded-2xl border border-gray-100 shadow-sm transition-opacity duration-300">
                 <div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-200 border-t-indigo-600 mb-4"></div>
                 <p class="text-indigo-800 font-semibold text-lg">Đang tải dữ liệu điểm danh...</p>
-                <p class="text-gray-500 text-sm mt-2">Vẫn có thể thực hiện điểm danh ở bên trái</p>
             </div>
 
             <!-- Khung 1: Thống Kê & Chọn Ngày -->
@@ -143,13 +126,14 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             <span id="formattedDateDisplay" class="text-base">Đang tải...</span>
                         </div>
+                        <!-- Ô chọn ngày -->
                         <input type="date" id="dateInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                     <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5 text-center border border-blue-200 shadow-sm">
-                        <p class="text-blue-700 font-medium mb-1">Tổng Sinh Viên</p>
+                        <p class="text-blue-700 font-medium mb-1">Tổng Danh Sách</p>
                         <p id="totalCount" class="text-3xl font-extrabold text-blue-900">0</p>
                     </div>
                     <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-5 text-center border border-green-200 shadow-sm">
@@ -189,21 +173,22 @@
                         <div class="bg-green-100 p-4 rounded-full mb-3">
                             <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                         </div>
-                        <p class="text-lg font-medium text-gray-700">Tuyệt vời! Ngày này không có sinh viên nào vắng.</p>
+                        <p class="text-lg font-medium text-gray-700">Tuyệt vời! Ngày này lớp đi học đủ (0 vắng).</p>
                     </div>
                     
-                    <div id="noDataWarning" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-95 z-10 rounded-xl">
+                    <div id="noDataWarning" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-95 z-10 rounded-xl text-center p-4">
                         <div class="bg-gray-100 p-4 rounded-full mb-3">
                             <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                         </div>
-                        <p class="text-lg font-medium text-gray-700">Không có dữ liệu điểm danh cho ngày này.</p>
+                        <p class="text-lg font-medium text-gray-700 mb-1">Không có dữ liệu điểm danh trong Sheet</p>
+                        <p class="text-sm text-gray-500">Toàn bộ sinh viên được tính là vắng vào ngày này.</p>
                     </div>
                 </div>
             </section>
         </div>
     </main>
 
-    <!-- Custom Message Box (Modal) -->
+    <!-- Modal Thông Báo -->
     <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-sm p-6 transform scale-95 transition-transform duration-300" id="modal-content">
             <div id="modal-icon" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4"></div>
@@ -223,7 +208,7 @@
         // Cấu hình Google Apps Script URL
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyL9YTVNIXxOcjv2PLi1W3sJXB_-5zhvJ2-hFnwcpSTn32e8VHoLaCxpmKvisJ4rry_/exec";
 
-        // Cơ sở dữ liệu mẫu sinh viên (Để ánh xạ MSSV -> Tên). 
+        // Cơ sở dữ liệu mẫu sinh viên tổng
         const studentDatabase = {
             "19110432": "Lê Tâm", "20110050": "Nguyễn Minh Hưng", "21110054": "Đinh Viết Đạt",
             "21110079": "Đặng Thị Thu Hiền", "21110101": "Trần Minh Huy", "21110251": "Đỗ Huỳnh Ngọc Châu",
@@ -243,34 +228,25 @@
             "23110221": "Trần Huy Tuấn", "23110047": "Nguyễn Lữ Duy Thịnh"
         };
 
-        // Biến toàn cục cho cả 2 tính năng
         let currentLocation = null;
         let verifiedName = "";
-        
-        // Khởi tạo Map sinh viên từ database cứng
         let totalStudentsMap = new Map(Object.entries(studentDatabase)); 
-        let dateRecords = new Map(); // YYYY-MM-DD -> Set(mssv đi học)
+        let dateRecords = new Map(); // Lưu trữ: YYYY-MM-DD -> Set(mssv đi học)
 
         window.onload = function() {
             requestGPS();
-            fetchData(); // Tải dữ liệu thống kê
+            fetchData();
             
-            // Lắng nghe sự kiện đổi ngày ở bảng thống kê
             document.getElementById('dateInput').addEventListener('change', (e) => {
                 if(e.target.value) updateUI(e.target.value);
             });
         };
 
-        // --- LOGIC PHẦN FORM ĐIỂM DANH ---
+        // --- PHẦN ĐIỂM DANH ---
         function requestGPS() {
-            const gpsText = document.getElementById('gps-text');
-            const gpsContainer = document.getElementById('gps-status-container');
-            const gpsLoader = document.getElementById('gps-loader');
-
-            // Hàm tạo GPS giả lập khi môi trường thử nghiệm chặn quyền
             const applyMockGPS = () => {
-                currentLocation = { lat: 10.762622, lng: 106.681048 }; // Tọa độ giả lập (HCMUS)
-                updateGPSStatus("Dùng vị trí giả lập (Do bị chặn trong Preview)", "warning");
+                currentLocation = { lat: 10.762622, lng: 106.681048 }; 
+                updateGPSStatus("Dùng vị trí giả lập (Không có quyền GPS)", "warning");
                 checkEnableSubmit();
             };
 
@@ -279,35 +255,15 @@
                 return;
             }
 
-            try {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        currentLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-                        updateGPSStatus("Đã lấy được tọa độ GPS", "success");
-                        checkEnableSubmit();
-                    },
-                    (error) => {
-                        console.error("Chi tiết lỗi GPS:", error.message || error.code || "Không xác định");
-                        
-                        // Nếu bị chặn bởi chính sách bảo mật (như iframe Code editor) -> Dùng mock GPS
-                        if (error.message && error.message.toLowerCase().includes("permissions policy")) {
-                            applyMockGPS();
-                            return;
-                        }
-
-                        let errorMessage = "Không thể lấy GPS. Hãy cấp quyền vị trí!";
-                        if (error.message) errorMessage = "Lỗi GPS: " + error.message;
-                        updateGPSStatus(errorMessage, "error");
-                    },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-            } catch (err) {
-                console.error("Try-catch lỗi:", err);
-                applyMockGPS();
-            }
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    currentLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+                    updateGPSStatus("Đã lấy được tọa độ GPS", "success");
+                    checkEnableSubmit();
+                },
+                (error) => { applyMockGPS(); },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
         }
 
         function updateGPSStatus(message, status) {
@@ -317,14 +273,10 @@
             
             text.innerText = message;
             if (loader) loader.style.display = 'none';
-
-            if (status === 'success') {
-                container.className = "flex items-center justify-between p-3 bg-green-50 text-green-700 rounded-lg text-sm border border-green-200 transition-colors";
-            } else if (status === 'error') {
-                container.className = "flex items-center justify-between p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200 transition-colors";
-            } else if (status === 'warning') {
-                container.className = "flex items-center justify-between p-3 bg-yellow-50 text-yellow-700 rounded-lg text-sm border border-yellow-200 transition-colors";
-            }
+            container.className = `flex items-center justify-between p-3 rounded-lg text-sm border transition-colors ${
+                status === 'success' ? 'bg-green-50 text-green-700 border-green-200' : 
+                status === 'error' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'
+            }`;
         }
 
         function checkStudent() {
@@ -333,31 +285,24 @@
             const nameEl = document.getElementById('student-name');
             const timeEl = document.getElementById('current-time-display');
             
-            if (!mssvInput) {
-                showModal("Lỗi nhập liệu", "Vui lòng nhập Mã số sinh viên.", "error");
-                return;
-            }
+            if (!mssvInput) return showModal("Lỗi nhập liệu", "Vui lòng nhập Mã số sinh viên.", "error");
 
             if (totalStudentsMap.has(mssvInput)) {
                 verifiedName = totalStudentsMap.get(mssvInput);
                 nameEl.innerText = verifiedName;
-                
                 const now = new Date();
                 timeEl.innerText = "Thời gian: " + now.toLocaleTimeString('vi-VN') + " - " + now.toLocaleDateString('vi-VN');
-                
                 infoDiv.classList.remove('hidden');
-                checkEnableSubmit();
             } else {
                 verifiedName = "";
                 infoDiv.classList.add('hidden');
-                checkEnableSubmit();
-                showModal("Không tìm thấy", "Không tìm thấy sinh viên có MSSV: " + mssvInput + ". Vui lòng kiểm tra lại.", "warning");
+                showModal("Không tìm thấy", "Không tìm thấy sinh viên có MSSV: " + mssvInput + ".", "warning");
             }
+            checkEnableSubmit();
         }
 
         function checkEnableSubmit() {
-            const btn = document.getElementById('submit-btn');
-            btn.disabled = !(verifiedName !== "" && currentLocation !== null);
+            document.getElementById('submit-btn').disabled = !(verifiedName !== "" && currentLocation !== null);
         }
 
         function submitAttendance() {
@@ -376,140 +321,99 @@
             formData.append('lat', currentLocation.lat);
             formData.append('lng', currentLocation.lng);
             
+            // Định dạng thời gian theo yêu cầu cũ để lưu vào sheet
             const now = new Date();
             const timeString = now.toLocaleTimeString('vi-VN') + " " + now.toLocaleDateString('vi-VN');
             formData.append('time', timeString);
 
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: formData,
-                mode: 'no-cors' 
-            })
+            fetch(SCRIPT_URL, { method: 'POST', body: formData, mode: 'no-cors' })
             .then(() => {
-                showModal("Thành công!", `Sinh viên ${verifiedName} đã điểm danh thành công lúc ${timeString}.`, "success");
-                
+                showModal("Thành công!", `Sinh viên ${verifiedName} đã điểm danh thành công.`, "success");
                 document.getElementById('mssv').value = '';
                 document.getElementById('student-info').classList.add('hidden');
                 verifiedName = "";
                 checkEnableSubmit();
-
-                // Lấy lại dữ liệu thống kê ngầm sau khi gửi
-                setTimeout(fetchData, 2000); 
+                setTimeout(fetchData, 2000); // Lấy lại dữ liệu thống kê
             })
-            .catch(error => {
-                console.error('Error!', error.message);
-                showModal("Lỗi mạng", "Không thể gửi dữ liệu điểm danh. Vui lòng kiểm tra mạng và thử lại.", "error");
-            })
-            .finally(() => {
-                btn.innerHTML = originalBtnText;
-            });
+            .catch(() => showModal("Lỗi mạng", "Không thể gửi dữ liệu điểm danh.", "error"))
+            .finally(() => btn.innerHTML = originalBtnText);
         }
 
-        // --- LOGIC PHẦN THỐNG KÊ (BÊN PHẢI) ---
+        // --- PHẦN THỐNG KÊ (LOGIC MỚI) ---
         async function fetchData() {
             const overlay = document.getElementById('statsLoadingOverlay');
             try {
-                // Thêm parameter callback mạc định tránh lỗi CORS nếu script hỗ trợ JSONP hoặc GET
                 const response = await fetch(SCRIPT_URL + "?action=get"); 
-                
-                // Tránh lỗi khi fetch GET không được phép (CORS) -> Catch sẽ xử lý
-                if (!response.ok) throw new Error("Network response was not ok");
+                if (!response.ok) throw new Error("Lỗi phản hồi mạng");
                 
                 const rawData = await response.json();
-                const actualData = Array.isArray(rawData) ? rawData : (rawData.data || rawData.records || rawData.items || []);
+                const actualData = Array.isArray(rawData) ? rawData : (rawData.data || []);
                 
                 if(actualData.length > 0) {
                     processData(actualData);
                 }
             } catch(err) {
-                console.warn("Không thể lấy dữ liệu trực tiếp, hiển thị rỗng hoặc chờ cập nhật.", err);
-                // Nếu lỗi mạng, hiển thị cảnh báo nhẹ
-                document.getElementById('formattedDateDisplay').textContent = "Không tải được Data";
+                console.warn("Lỗi tải data:", err);
             } finally {
-                // Luôn ẩn Loading overlay của bên thống kê
                 overlay.classList.add('hidden');
                 
-                // Mặc định chọn ngày hiện tại để hiển thị
-                if(dateRecords.size > 0) {
-                    let dates = Array.from(dateRecords.keys());
-                    dates.sort((a, b) => new Date(b) - new Date(a));
-                    const latestDate = dates[0];
-                    document.getElementById('dateInput').value = latestDate;
-                    updateUI(latestDate);
-                } else {
-                    const todayStr = getLocalISODate(new Date());
-                    document.getElementById('dateInput').value = todayStr;
-                    updateUI(todayStr);
-                }
+                // Mặc định set ngày hiện tại để hiển thị
+                const todayStr = getLocalISODate(new Date());
+                document.getElementById('dateInput').value = todayStr;
+                updateUI(todayStr);
             }
         }
 
-        function processData(data) {
-            if (!data || !data.length) return;
+        // Hàm phân tích ngày từ Cột A của Google Sheet (Hỗ trợ nhiều format)
+        function extractDateString(val) {
+            if (!val) return null;
+            const str = String(val).trim();
             
-            const isArrayOfArrays = Array.isArray(data[0]);
-            let headers = [];
-            let rows = [];
-            
-            if (isArrayOfArrays) {
-                headers = data[0].map(h => String(h).trim());
-                rows = data.slice(1);
-            } else {
-                headers = Object.keys(data[0]).map(k => k.trim());
-                rows = data.map(obj => {
-                    let newRow = {};
-                    Object.keys(obj).forEach(k => newRow[k.trim()] = obj[k]);
-                    return headers.map(h => newRow[h]);
-                });
+            // Tìm dạng DD/MM/YYYY (Kiểu Việt Nam) trong chuỗi
+            const vnMatch = str.match(/(?:^|\s)(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:\s|$)/);
+            if (vnMatch) {
+                const d = vnMatch[1].padStart(2, '0');
+                const m = vnMatch[2].padStart(2, '0');
+                const y = vnMatch[3];
+                return `${y}-${m}-${d}`;
             }
             
-            const mssvIndex = headers.findIndex(h => /mssv|mã/i.test(h));
-            const nameIndex = headers.findIndex(h => /tên|name|họ/i.test(h));
-            const finalMssvIndex = mssvIndex > -1 ? mssvIndex : 0;
-            const finalNameIndex = nameIndex > -1 ? nameIndex : 1;
+            // Tìm dạng ISO YYYY-MM-DD
+            const isoMatch = str.match(/^(\d{4})[\/\-](\d{2})[\/\-](\d{2})/);
+            if (isoMatch) return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
             
-            const dateColumns = [];
-            headers.forEach((h, i) => {
-                const match = h.match(/(\d{1,2}[\/\-\_]\d{1,2}(?:[\/\-\_]\d{2,4})?)/);
-                if (match && !/sinh/i.test(h)) dateColumns.push({ index: i, dateStr: match[1] });
-            });
+            // Fallback JS Date
+            const dateObj = new Date(str);
+            if (!isNaN(dateObj.getTime())) return getLocalISODate(dateObj);
             
-            // Quét dữ liệu và bổ sung vào tổng
-            if (dateColumns.length > 0) {
-                rows.forEach(row => {
-                    const mssv = String(row[finalMssvIndex] || '').trim();
-                    const name = String(row[finalNameIndex] || '').trim();
-                    if (!mssv || mssv === 'undefined') return;
-                                      
-                    dateColumns.forEach(dc => {
-                        const val = String(row[dc.index] || '').trim().toLowerCase();
-                        const isPresent = val !== '' && !/vắng|v|không|0|khong/i.test(val);
-                        const isoDate = parseDateString(dc.dateStr);
-                        if (!dateRecords.has(isoDate)) dateRecords.set(isoDate, new Set());
-                        if (isPresent) dateRecords.get(isoDate).add(mssv);
-                    });
-                });
-            } else {
-                // Xử lý dạng Google Form Log
-                const timeIndex = headers.findIndex(h => /timestamp|thời gian|ngày điểm danh|date|time/i.test(h) && !/sinh/i.test(h));
-                const statusIndex = headers.findIndex(h => /trạng thái|status|có mặt|vắng/i.test(h));
+            return null;
+        }
+
+        function processData(data) {
+            dateRecords.clear(); 
+            
+            // Cột A (Index 0) = Thời gian | Cột B (Index 1) = MSSV
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                // Bỏ qua dòng tiêu đề nếu có chữ "Thời gian" ở cột đầu
+                if (i === 0 && String(row[0]).toLowerCase().includes("thời gian")) continue;
+
+                const timeVal = row[0]; 
+                const mssvVal = String(row[1] || '').trim().toUpperCase(); 
+
+                if (!timeVal || !mssvVal) continue;
+
+                const dateKey = extractDateString(timeVal); // Lấy ra định dạng YYYY-MM-DD
                 
-                rows.forEach(row => {
-                    const mssv = String(row[finalMssvIndex] || '').trim();
-                    const name = String(row[finalNameIndex] || '').trim();
-                    if (!mssv || mssv === 'undefined') return;
-            
-                    let isoDate = getLocalISODate(new Date());
-                    if (timeIndex !== -1 && row[timeIndex]) isoDate = parseDateString(String(row[timeIndex]));
-                    if (!dateRecords.has(isoDate)) dateRecords.set(isoDate, new Set());
-                    
-                    let isPresent = true;
-                    if (statusIndex !== -1 && row[statusIndex]) {
-                        const statusVal = String(row[statusIndex]).trim().toLowerCase();
-                        if (/vắng|absent|không/i.test(statusVal)) isPresent = false;
+                if (dateKey) {
+                    if (!dateRecords.has(dateKey)) {
+                        dateRecords.set(dateKey, new Set());
                     }
-                    if (isPresent) dateRecords.get(isoDate).add(mssv);
-                });
+                    // CHỈ CỘNG VÀO HIỆN DIỆN NẾU MSSV CÓ TRONG DANH SÁCH TỔNG
+                    if (totalStudentsMap.has(mssvVal)) {
+                        dateRecords.get(dateKey).add(mssvVal);
+                    }
+                }
             }
         }
 
@@ -520,39 +424,14 @@
             return `${y}-${m}-${day}`;
         }
 
-        function parseDateString(str) {
-            if(!str) return null;
-            str = String(str).trim();
-            if (str.includes('T')) {
-                const d = new Date(str);
-                if(!isNaN(d.getTime())) return getLocalISODate(d);
-            }
-            const match = str.match(/(\d{1,4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,4})/);
-            if(match) {
-                let p1 = parseInt(match[1]), p2 = parseInt(match[2]), p3 = parseInt(match[3]);
-                if (p1 > 1000) return `${p1}-${String(p2).padStart(2, '0')}-${String(p3).padStart(2, '0')}`;
-                if (p3 > 1000) return `${p3}-${String(p2 > 12 ? p1 : p2).padStart(2, '0')}-${String(p2 > 12 ? p2 : p1).padStart(2, '0')}`;
-            }
-            const match2 = str.match(/(\d{1,2})[\/\-\.](\d{1,2})/);
-            if(match2 && !str.includes(':')) {
-                let p1 = parseInt(match2[1]), p2 = parseInt(match2[2]), year = new Date().getFullYear();
-                return `${year}-${String(p2 > 12 ? p1 : p2).padStart(2, '0')}-${String(p2 > 12 ? p2 : p1).padStart(2, '0')}`;
-            }
-            const d = new Date(str);
-            if(!isNaN(d.getTime())) return getLocalISODate(d);
-            return str;
-        }
-
         function formatVNTime(dateString) {
             if (!dateString) return "Chưa chọn ngày";
             const parts = dateString.split('-');
             if(parts.length !== 3) return dateString;
             
-            const y = parseInt(parts[0], 10), m = parseInt(parts[1], 10) - 1, d_num = parseInt(parts[2], 10);
-            const d = new Date(y, m, d_num);
+            const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
             const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
-            
-            return `${days[d.getDay()]} - ${String(d.getDate()).padStart(2, '0')} - ${String(d.getMonth() + 1).padStart(2, '0')} - ${d.getFullYear()}`; 
+            return `${days[d.getDay()]} - ${parts[2]}/${parts[1]}/${parts[0]}`; 
         }
 
         function updateUI(selectedDateStr) { 
@@ -566,56 +445,64 @@
             const noDataWarning = document.getElementById('noDataWarning');
             
             absentListTable.innerHTML = '';
-            totalCountEl.textContent = totalStudentsMap.size;
             
-            if (!dateRecords.has(selectedDateStr)) {
-                presentCountEl.textContent = 0;
-                absentCountEl.textContent = 0;
-                emptyState.classList.add('hidden');
-                noDataWarning.classList.remove('hidden');
-                return;
-            }
+            const totalStudents = totalStudentsMap.size;
+            totalCountEl.textContent = totalStudents;
             
-            noDataWarning.classList.add('hidden');
-            const presentSet = dateRecords.get(selectedDateStr);
+            // Xử lý logic so sánh
+            let presentSet = dateRecords.has(selectedDateStr) ? dateRecords.get(selectedDateStr) : new Set();
             let absentStudents = [];
             
+            // So sánh từng mssv trong danh sách tổng, nếu không có ở Sheet -> Tính là Vắng
             totalStudentsMap.forEach((name, mssv) => {
-                if (!presentSet.has(mssv)) absentStudents.push({ mssv, name });
+                if (!presentSet.has(mssv)) {
+                    absentStudents.push({ mssv, name });
+                }
             });
-            
+
+            // Sắp xếp danh sách vắng mặt theo MSSV tăng dần
             absentStudents.sort((a, b) => a.mssv.localeCompare(b.mssv));
-            
+
+            // Cập nhật thẻ đếm
             presentCountEl.textContent = presentSet.size;
             absentCountEl.textContent = absentStudents.length;
-            
-            if (absentStudents.length === 0) {
+
+            // Xử lý hiển thị bảng
+            if (!dateRecords.has(selectedDateStr)) {
+                emptyState.classList.add('hidden');
+                noDataWarning.classList.remove('hidden');
+                renderAbsentList(absentStudents, absentListTable);
+            } else if (absentStudents.length === 0) {
                 emptyState.classList.remove('hidden');
+                noDataWarning.classList.add('hidden');
             } else {
                 emptyState.classList.add('hidden');
-                absentStudents.forEach((student, index) => {
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-blue-50 transition-colors duration-150";
-                    tr.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">${index + 1}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">${student.mssv}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">${student.name}</td>
-                    `;
-                    absentListTable.appendChild(tr);
-                });
+                noDataWarning.classList.add('hidden');
+                renderAbsentList(absentStudents, absentListTable);
             }
         }
 
+        function renderAbsentList(students, container) {
+            students.forEach((student, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-red-50 transition-colors duration-150";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">${index + 1}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-red-600">${student.mssv}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">${student.name}</td>
+                `;
+                container.appendChild(tr);
+            });
+        }
+
+        // Modal Functions
         function showModal(title, message, type) {
             const modal = document.getElementById('custom-modal');
             const content = document.getElementById('modal-content');
-            const titleEl = document.getElementById('modal-title');
-            const msgEl = document.getElementById('modal-message');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            
             const iconEl = document.getElementById('modal-icon');
-
-            titleEl.innerText = title;
-            msgEl.innerText = message;
-
             if (type === 'success') {
                 iconEl.className = "mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4";
                 iconEl.innerHTML = `<svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
@@ -637,13 +524,9 @@
         function closeModal() {
             const modal = document.getElementById('custom-modal');
             const content = document.getElementById('modal-content');
-            
             modal.classList.add('opacity-0');
             content.classList.add('scale-95');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
     </script>
 </body>
