@@ -221,7 +221,7 @@
 
     <script>
         // Cấu hình Google Apps Script URL
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw65OPjGak5XPJrAANIQU6e8tggSbga0AtV32kzZXuL9FIE74qNLL8OVnyPvGqqm5uD/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyL9YTVNIXxOcjv2PLi1W3sJXB_-5zhvJ2-hFnwcpSTn32e8VHoLaCxpmKvisJ4rry_/exec";
 
         // Cơ sở dữ liệu mẫu sinh viên (Để ánh xạ MSSV -> Tên). 
         const studentDatabase = {
@@ -480,8 +480,7 @@
                     const mssv = String(row[finalMssvIndex] || '').trim();
                     const name = String(row[finalNameIndex] || '').trim();
                     if (!mssv || mssv === 'undefined') return;
-                    totalStudentsMap.set(mssv, name); // Cập nhật map
-                    
+                                      
                     dateColumns.forEach(dc => {
                         const val = String(row[dc.index] || '').trim().toLowerCase();
                         const isPresent = val !== '' && !/vắng|v|không|0|khong/i.test(val);
@@ -499,8 +498,7 @@
                     const mssv = String(row[finalMssvIndex] || '').trim();
                     const name = String(row[finalNameIndex] || '').trim();
                     if (!mssv || mssv === 'undefined') return;
-                    totalStudentsMap.set(mssv, name);
-                    
+            
                     let isoDate = getLocalISODate(new Date());
                     if (timeIndex !== -1 && row[timeIndex]) isoDate = parseDateString(String(row[timeIndex]));
                     if (!dateRecords.has(isoDate)) dateRecords.set(isoDate, new Set());
