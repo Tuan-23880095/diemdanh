@@ -117,16 +117,20 @@
                     Thống Kê Tổng Quan
                 </h2>
                 
-                <div class="relative inline-block mb-2 w-full md:w-auto">
-                    <label for="dateInput" class="block text-sm font-medium text-gray-700 mb-2">Chọn Ngày Điểm Danh:</label>
-                    <div class="relative group">
-                        <div class="flex items-center gap-3 bg-indigo-50 border border-indigo-200 text-indigo-700 px-5 py-3 rounded-xl font-semibold cursor-pointer group-hover:bg-indigo-100 transition shadow-sm w-full md:w-auto">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <span id="formattedDateDisplay" class="text-base">Đang tải...</span>
-                        </div>
-                        <input type="date" id="dateInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <!-- ĐÃ SỬA LỖI KHÔNG CHỌN ĐƯỢC NGÀY Ở ĐÂY -->
+                <div class="flex flex-col md:flex-row md:items-end gap-4 mb-2">
+                    <div class="w-full md:w-auto">
+                        <label for="dateInput" class="block text-sm font-medium text-gray-700 mb-2">Chọn Ngày Cần Xem:</label>
+                        <input type="date" id="dateInput" 
+                            class="w-full bg-indigo-50 border border-indigo-200 text-indigo-700 px-5 py-3 rounded-xl font-bold cursor-pointer hover:bg-indigo-100 transition shadow-sm outline-none focus:ring-2 focus:ring-indigo-500" />
+                    </div>
+                    
+                    <div class="flex items-center gap-2 text-indigo-800 bg-white border border-indigo-100 px-5 py-3 rounded-xl shadow-sm w-full md:w-auto">
+                        <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span id="formattedDateDisplay" class="text-base font-semibold">Đang tải...</span>
                     </div>
                 </div>
+                <!-- KẾT THÚC PHẦN SỬA LỖI -->
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                     <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5 text-center border border-blue-200 shadow-sm">
@@ -228,22 +232,19 @@
         let totalStudentsMap = new Map(Object.entries(studentDatabase)); 
         let dateRecords = new Map();
         
-        // Biến lưu trữ IP tĩnh lấy từ bên ngoài
         let clientIP = "Không xác định";
 
         window.onload = function() {
             requestGPS();
             fetchData();
-            fetchIP(); // Gọi hàm lấy IP ngay khi web tải xong
+            fetchIP();
             
             document.getElementById('dateInput').addEventListener('change', (e) => {
                 if(e.target.value) updateUI(e.target.value);
             });
         };
 
-        // --- LẤY THÔNG TIN THIẾT BỊ ---
         function fetchIP() {
-            // Lấy IP thông qua dịch vụ ipify miễn phí
             fetch('https://api.ipify.org?format=json')
                 .then(response => response.json())
                 .then(data => { clientIP = data.ip; })
@@ -270,7 +271,6 @@
             return "Khác";
         }
 
-        // --- PHẦN ĐIỂM DANH ---
         function requestGPS() {
             const applyMockGPS = () => {
                 currentLocation = { lat: 10.762622, lng: 106.681048 }; 
@@ -343,7 +343,6 @@
             btn.disabled = true;
             btn.innerHTML = `<div class="loader border-blue-200 border-top-white"></div> <span>Đang gửi...</span>`;
 
-            // === ĐÓNG GÓI TẤT CẢ DỮ LIỆU ĐỂ GỬI LÊN GOOGLE SHEET ===
             const formData = new FormData();
             formData.append('mssv', mssv);
             formData.append('name', verifiedName);
@@ -354,7 +353,6 @@
             const timeString = now.toLocaleTimeString('vi-VN') + " " + now.toLocaleDateString('vi-VN');
             formData.append('time', timeString);
 
-            // Bổ sung các thông số mạng & thiết bị
             formData.append('ip', clientIP);
             formData.append('browser', getBrowserInfo());
             formData.append('os', getOSInfo());
