@@ -14,7 +14,6 @@
             background-size: 20px 20px;
         }
         
-        /* Tùy chỉnh thanh cuộn */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -106,7 +105,6 @@
 
         <!-- Cột Phải: Thống Kê & Báo Cáo -->
         <div class="lg:col-span-8 flex flex-col space-y-6 relative min-h-[500px]">
-            
             <div id="statsLoadingOverlay" class="absolute inset-0 bg-white bg-opacity-90 z-20 flex flex-col items-center justify-center rounded-2xl border border-gray-100 shadow-sm transition-opacity duration-300">
                 <div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-200 border-t-indigo-600 mb-4"></div>
                 <p class="text-indigo-800 font-semibold text-lg">Đang tải dữ liệu điểm danh...</p>
@@ -126,7 +124,6 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             <span id="formattedDateDisplay" class="text-base">Đang tải...</span>
                         </div>
-                        <!-- Ô chọn ngày -->
                         <input type="date" id="dateInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                     </div>
                 </div>
@@ -168,7 +165,6 @@
                         </tbody>
                     </table>
                     
-                    <!-- States -->
                     <div id="emptyState" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-95 z-10 rounded-xl">
                         <div class="bg-green-100 p-4 rounded-full mb-3">
                             <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -208,7 +204,6 @@
         // Cấu hình Google Apps Script URL
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyL9YTVNIXxOcjv2PLi1W3sJXB_-5zhvJ2-hFnwcpSTn32e8VHoLaCxpmKvisJ4rry_/exec";
 
-        // Cơ sở dữ liệu mẫu sinh viên tổng
         const studentDatabase = {
             "19110432": "Lê Tâm", "20110050": "Nguyễn Minh Hưng", "21110054": "Đinh Viết Đạt",
             "21110079": "Đặng Thị Thu Hiền", "21110101": "Trần Minh Huy", "21110251": "Đỗ Huỳnh Ngọc Châu",
@@ -231,16 +226,49 @@
         let currentLocation = null;
         let verifiedName = "";
         let totalStudentsMap = new Map(Object.entries(studentDatabase)); 
-        let dateRecords = new Map(); // Lưu trữ: YYYY-MM-DD -> Set(mssv đi học)
+        let dateRecords = new Map();
+        
+        // Biến lưu trữ IP tĩnh lấy từ bên ngoài
+        let clientIP = "Không xác định";
 
         window.onload = function() {
             requestGPS();
             fetchData();
+            fetchIP(); // Gọi hàm lấy IP ngay khi web tải xong
             
             document.getElementById('dateInput').addEventListener('change', (e) => {
                 if(e.target.value) updateUI(e.target.value);
             });
         };
+
+        // --- LẤY THÔNG TIN THIẾT BỊ ---
+        function fetchIP() {
+            // Lấy IP thông qua dịch vụ ipify miễn phí
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => { clientIP = data.ip; })
+                .catch(() => { console.log("Không thể lấy IP"); });
+        }
+
+        function getBrowserInfo() {
+            const ua = navigator.userAgent;
+            if (ua.includes("Firefox/")) return "Firefox";
+            if (ua.includes("Edg/")) return "Edge";
+            if (ua.includes("Chrome/") && !ua.includes("Edg/")) return "Chrome";
+            if (ua.includes("Safari/") && !ua.includes("Chrome/")) return "Safari";
+            if (ua.includes("Opera/") || ua.includes("OPR/")) return "Opera";
+            return "Khác";
+        }
+
+        function getOSInfo() {
+            const ua = navigator.userAgent;
+            if (ua.includes("Win")) return "Windows";
+            if (ua.includes("Mac")) return "MacOS";
+            if (ua.includes("Linux")) return "Linux";
+            if (ua.includes("Android")) return "Android";
+            if (ua.includes("like Mac")) return "iOS";
+            return "Khác";
+        }
 
         // --- PHẦN ĐIỂM DANH ---
         function requestGPS() {
@@ -315,16 +343,25 @@
             btn.disabled = true;
             btn.innerHTML = `<div class="loader border-blue-200 border-top-white"></div> <span>Đang gửi...</span>`;
 
+            // === ĐÓNG GÓI TẤT CẢ DỮ LIỆU ĐỂ GỬI LÊN GOOGLE SHEET ===
             const formData = new FormData();
             formData.append('mssv', mssv);
             formData.append('name', verifiedName);
             formData.append('lat', currentLocation.lat);
             formData.append('lng', currentLocation.lng);
             
-            // Định dạng thời gian theo yêu cầu cũ để lưu vào sheet
             const now = new Date();
             const timeString = now.toLocaleTimeString('vi-VN') + " " + now.toLocaleDateString('vi-VN');
             formData.append('time', timeString);
+
+            // Bổ sung các thông số mạng & thiết bị
+            formData.append('ip', clientIP);
+            formData.append('browser', getBrowserInfo());
+            formData.append('os', getOSInfo());
+            formData.append('resolution', `${window.screen.width}x${window.screen.height}`);
+            formData.append('language', navigator.language || "Không xác định");
+            formData.append('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone || "Không xác định");
+            formData.append('userAgent', navigator.userAgent);
 
             fetch(SCRIPT_URL, { method: 'POST', body: formData, mode: 'no-cors' })
             .then(() => {
@@ -333,13 +370,13 @@
                 document.getElementById('student-info').classList.add('hidden');
                 verifiedName = "";
                 checkEnableSubmit();
-                setTimeout(fetchData, 2000); // Lấy lại dữ liệu thống kê
+                setTimeout(fetchData, 2000); 
             })
             .catch(() => showModal("Lỗi mạng", "Không thể gửi dữ liệu điểm danh.", "error"))
             .finally(() => btn.innerHTML = originalBtnText);
         }
 
-        // --- PHẦN THỐNG KÊ (LOGIC MỚI) ---
+        // --- PHẦN THỐNG KÊ ---
         async function fetchData() {
             const overlay = document.getElementById('statsLoadingOverlay');
             try {
@@ -356,63 +393,36 @@
                 console.warn("Lỗi tải data:", err);
             } finally {
                 overlay.classList.add('hidden');
-                
-                // Mặc định set ngày hiện tại để hiển thị
                 const todayStr = getLocalISODate(new Date());
                 document.getElementById('dateInput').value = todayStr;
                 updateUI(todayStr);
             }
         }
 
-        // Hàm phân tích ngày từ Cột A của Google Sheet (Hỗ trợ nhiều format)
         function extractDateString(val) {
             if (!val) return null;
             const str = String(val).trim();
-            
-            // Tìm dạng DD/MM/YYYY (Kiểu Việt Nam) trong chuỗi
             const vnMatch = str.match(/(?:^|\s)(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:\s|$)/);
-            if (vnMatch) {
-                const d = vnMatch[1].padStart(2, '0');
-                const m = vnMatch[2].padStart(2, '0');
-                const y = vnMatch[3];
-                return `${y}-${m}-${d}`;
-            }
-            
-            // Tìm dạng ISO YYYY-MM-DD
+            if (vnMatch) return `${vnMatch[3]}-${vnMatch[2].padStart(2, '0')}-${vnMatch[1].padStart(2, '0')}`;
             const isoMatch = str.match(/^(\d{4})[\/\-](\d{2})[\/\-](\d{2})/);
             if (isoMatch) return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
-            
-            // Fallback JS Date
             const dateObj = new Date(str);
             if (!isNaN(dateObj.getTime())) return getLocalISODate(dateObj);
-            
             return null;
         }
 
         function processData(data) {
             dateRecords.clear(); 
-            
-            // Cột A (Index 0) = Thời gian | Cột B (Index 1) = MSSV
             for (let i = 0; i < data.length; i++) {
                 const row = data[i];
-                // Bỏ qua dòng tiêu đề nếu có chữ "Thời gian" ở cột đầu
                 if (i === 0 && String(row[0]).toLowerCase().includes("thời gian")) continue;
-
                 const timeVal = row[0]; 
                 const mssvVal = String(row[1] || '').trim().toUpperCase(); 
-
                 if (!timeVal || !mssvVal) continue;
-
-                const dateKey = extractDateString(timeVal); // Lấy ra định dạng YYYY-MM-DD
-                
+                const dateKey = extractDateString(timeVal);
                 if (dateKey) {
-                    if (!dateRecords.has(dateKey)) {
-                        dateRecords.set(dateKey, new Set());
-                    }
-                    // CHỈ CỘNG VÀO HIỆN DIỆN NẾU MSSV CÓ TRONG DANH SÁCH TỔNG
-                    if (totalStudentsMap.has(mssvVal)) {
-                        dateRecords.get(dateKey).add(mssvVal);
-                    }
+                    if (!dateRecords.has(dateKey)) dateRecords.set(dateKey, new Set());
+                    if (totalStudentsMap.has(mssvVal)) dateRecords.get(dateKey).add(mssvVal);
                 }
             }
         }
@@ -428,7 +438,6 @@
             if (!dateString) return "Chưa chọn ngày";
             const parts = dateString.split('-');
             if(parts.length !== 3) return dateString;
-            
             const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
             const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
             return `${days[d.getDay()]} - ${parts[2]}/${parts[1]}/${parts[0]}`; 
@@ -445,29 +454,19 @@
             const noDataWarning = document.getElementById('noDataWarning');
             
             absentListTable.innerHTML = '';
+            totalCountEl.textContent = totalStudentsMap.size;
             
-            const totalStudents = totalStudentsMap.size;
-            totalCountEl.textContent = totalStudents;
-            
-            // Xử lý logic so sánh
             let presentSet = dateRecords.has(selectedDateStr) ? dateRecords.get(selectedDateStr) : new Set();
             let absentStudents = [];
             
-            // So sánh từng mssv trong danh sách tổng, nếu không có ở Sheet -> Tính là Vắng
             totalStudentsMap.forEach((name, mssv) => {
-                if (!presentSet.has(mssv)) {
-                    absentStudents.push({ mssv, name });
-                }
+                if (!presentSet.has(mssv)) absentStudents.push({ mssv, name });
             });
 
-            // Sắp xếp danh sách vắng mặt theo MSSV tăng dần
             absentStudents.sort((a, b) => a.mssv.localeCompare(b.mssv));
-
-            // Cập nhật thẻ đếm
             presentCountEl.textContent = presentSet.size;
             absentCountEl.textContent = absentStudents.length;
 
-            // Xử lý hiển thị bảng
             if (!dateRecords.has(selectedDateStr)) {
                 emptyState.classList.add('hidden');
                 noDataWarning.classList.remove('hidden');
@@ -495,7 +494,6 @@
             });
         }
 
-        // Modal Functions
         function showModal(title, message, type) {
             const modal = document.getElementById('custom-modal');
             const content = document.getElementById('modal-content');
